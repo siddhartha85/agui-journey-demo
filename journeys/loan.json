@@ -1,0 +1,51 @@
+{
+  "id": "loan",
+  "name": "Personal Loan Application",
+  "icon": "🏦",
+  "color": "blue",
+  "description": "Apply for a personal loan in minutes. Get a decision instantly with competitive rates starting from 6.9% APR.",
+  "cta_label": "Start Application",
+
+  "steps": [
+    {
+      "id": "personal",
+      "title": "Personal Information",
+      "submit_label": "Next: Financial Details →",
+      "fields": [
+        { "name": "full_name",   "label": "Full Name",        "type": "text",   "placeholder": "e.g. John Smith",         "required": true  },
+        { "name": "dob",         "label": "Date of Birth",    "type": "date",                                              "required": true  },
+        { "name": "email",       "label": "Email Address",    "type": "email",  "placeholder": "you@example.com",         "required": true  },
+        { "name": "phone",       "label": "Phone Number",     "type": "tel",    "placeholder": "+1 555 000 0000",         "required": true  }
+      ]
+    },
+    {
+      "id": "financial",
+      "title": "Financial Details",
+      "submit_label": "Next: Review Application →",
+      "fields": [
+        { "name": "monthly_income",    "label": "Monthly Income ($)",    "type": "number", "placeholder": "e.g. 4000",   "required": true  },
+        { "name": "loan_amount",       "label": "Loan Amount ($)",       "type": "number", "placeholder": "e.g. 10000", "required": true  },
+        { "name": "loan_term",         "label": "Repayment Term",        "type": "select",
+          "options": ["12 months", "24 months", "36 months", "48 months", "60 months"],    "required": true  },
+        { "name": "loan_purpose",      "label": "Purpose of Loan",       "type": "select",
+          "options": ["Home Improvement", "Car Purchase", "Education", "Medical", "Debt Consolidation", "Holiday", "Other"], "required": true },
+        { "name": "employment_status", "label": "Employment Status",     "type": "select",
+          "options": ["Full-time Employed", "Part-time Employed", "Self-Employed", "Unemployed", "Retired", "Student"],      "required": true }
+      ]
+    }
+  ],
+
+  "summary_title": "Review Your Loan Application",
+
+  "decision_rule": "Approve if monthly_income >= loan_amount * 0.15 AND employment_status is Employed or Self-Employed. Mark as pending if income is borderline. Reject if unemployed with high loan amount.",
+
+  "confirmation": {
+    "title": "Loan Application Submitted!",
+    "next_steps": [
+      "A confirmation email has been sent to your inbox",
+      "Our team will review your application within 24 hours",
+      "If approved, funds will be transferred within 3–5 business days",
+      "You can track your application status in the app"
+    ]
+  }
+}

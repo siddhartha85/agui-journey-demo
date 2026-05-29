@@ -1,0 +1,51 @@
+{
+  "id": "account",
+  "name": "Open a Bank Account",
+  "icon": "💳",
+  "color": "green",
+  "description": "Open your account in 3 easy steps. No minimum balance required. Free debit card included.",
+  "cta_label": "Open My Account",
+
+  "steps": [
+    {
+      "id": "personal",
+      "title": "Personal Details",
+      "submit_label": "Next: Identity Verification →",
+      "fields": [
+        { "name": "full_name",   "label": "Full Name",        "type": "text",   "placeholder": "e.g. Jane Doe",    "required": true },
+        { "name": "dob",         "label": "Date of Birth",    "type": "date",                                      "required": true },
+        { "name": "nationality", "label": "Nationality",      "type": "select",
+          "options": ["US Citizen", "UK Citizen", "EU Citizen", "Indian", "Australian", "Other"],                  "required": true },
+        { "name": "email",       "label": "Email Address",    "type": "email",  "placeholder": "you@example.com", "required": true },
+        { "name": "phone",       "label": "Mobile Number",    "type": "tel",    "placeholder": "+1 555 000 0000", "required": true }
+      ]
+    },
+    {
+      "id": "identity",
+      "title": "Identity Verification",
+      "submit_label": "Next: Review & Submit →",
+      "fields": [
+        { "name": "id_type",    "label": "ID Document Type",  "type": "select",
+          "options": ["Passport", "Driver's Licence", "National ID Card", "Residence Permit"], "required": true },
+        { "name": "id_number",  "label": "ID Number",         "type": "text",   "placeholder": "Enter your ID number",        "required": true },
+        { "name": "address",    "label": "Home Address",      "type": "text",   "placeholder": "Street, City, Postcode",      "required": true },
+        { "name": "account_type","label": "Account Type",     "type": "select",
+          "options": ["Current Account", "Savings Account", "Student Account", "Business Account"], "required": true }
+      ]
+    }
+  ],
+
+  "summary_title": "Review Your Account Application",
+
+  "decision_rule": "Always approve — account opening is instant for all valid ID types. Generate confirmation immediately.",
+
+  "confirmation": {
+    "title": "Account Successfully Opened!",
+    "next_steps": [
+      "Your account is now active and ready to use",
+      "Your debit card will arrive within 5–7 business days",
+      "Download the app to manage your account online",
+      "Set up direct debits and standing orders in the app"
+    ]
+  }
+}

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>AG-UI Journey Demo</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+         background:#f0f2f5;display:flex;flex-direction:column;
+         align-items:center;height:100vh;padding:16px;}
+
+    h1{font-size:1.25rem;color:#1a1a2e;margin-bottom:2px;}
+    .sub{font-size:.78rem;color:#888;margin-bottom:12px;}
+
+    /* ── Event log ── */
+    #log-wrap{width:100%;max-width:860px;background:#1e1e2e;color:#cdd6f4;
+              border-radius:10px;padding:10px 14px;font-family:monospace;
+              font-size:.72rem;height:72px;overflow-y:auto;margin-bottom:12px;}
+    #log-wrap h3{color:#89b4fa;font-size:.68rem;margin-bottom:3px;}
+    .ll{line-height:1.6;}
+    .c-run{color:#a6e3a1;} .c-msg{color:#89dceb;}
+    .c-tool{color:#f38ba8;} .c-comp{color:#fab387;font-weight:700;}
+    .c-end{color:#cba6f7;}
+
+    /* ── Chat window ── */
+    #chat{width:100%;max-width:860px;background:#fff;border-radius:14px;
+          box-shadow:0 2px 18px rgba(0,0,0,.09);display:flex;
+          flex-direction:column;flex:1;overflow:hidden;}
+
+    #msgs{flex:1;overflow-y:auto;padding:18px 20px;
+          display:flex;flex-direction:column;gap:14px;}
+
+    /* Text bubbles */
+    .bubble{max-width:68%;padding:9px 14px;border-radius:14px;
+            font-size:.88rem;line-height:1.55;white-space:pre-wrap;}
+    .bubble.user{background:#5865f2;color:#fff;align-self:flex-end;
+                 border-bottom-right-radius:3px;}
+    .bubble.assistant{background:#f1f3f5;color:#212529;align-self:flex-start;
+                      border-bottom-left-radius:3px;}
+
+    /* Typing dots */
+    .dots{display:inline-flex;gap:4px;align-items:center;}
+    .dots span{width:7px;height:7px;background:#adb5bd;border-radius:50%;
+               animation:pop 1.2s infinite ease-in-out;}
+    .dots span:nth-child(2){animation-delay:.2s;}
+    .dots span:nth-child(3){animation-delay:.4s;}
+    @keyframes pop{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+    /* Slide-in animation for all components */
+    @keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ════════════════════════════════════════
+       JOURNEY COMPONENTS
+    ════════════════════════════════════════ */
+
+    /* 1. WELCOME SCREEN */
+    .ag-welcome{align-self:stretch;border-radius:14px;padding:28px 24px;
+                text-align:center;animation:slideIn .3s ease;}
+    .ag-welcome.blue  {background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:#fff;}
+    .ag-welcome.green {background:linear-gradient(135deg,#15803d,#22c55e);color:#fff;}
+    .ag-welcome.purple{background:linear-gradient(135deg,#7e22ce,#a855f7);color:#fff;}
+    .ag-welcome.yellow{background:linear-gradient(135deg,#b45309,#f59e0b);color:#fff;}
+    .ag-welcome.red   {background:linear-gradient(135deg,#b91c1c,#ef4444);color:#fff;}
+    .ag-welcome-icon{font-size:3rem;margin-bottom:10px;}
+    .ag-welcome-title{font-size:1.4rem;font-weight:700;margin-bottom:8px;}
+    .ag-welcome-desc{font-size:.88rem;opacity:.9;line-height:1.6;max-width:480px;
+                     margin:0 auto 20px;}
+    .ag-welcome-btn{padding:11px 28px;background:rgba(255,255,255,.2);
+                    color:#fff;border:2px solid rgba(255,255,255,.6);
+                    border-radius:8px;font-size:.9rem;font-weight:600;
+                    cursor:pointer;transition:all .2s;}
+    .ag-welcome-btn:hover{background:rgba(255,255,255,.35);}
+    .ag-welcome-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+    /* 2. PROGRESS BAR */
+    .ag-progress{align-self:stretch;background:#f8fafc;border-radius:12px;
+                 padding:14px 18px;animation:slideIn .25s ease;}
+    .ag-steps{display:flex;align-items:center;}
+    .ag-step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;}
+    .ag-step-dot{width:32px;height:32px;border-radius:50%;display:flex;
+                 align-items:center;justify-content:center;
+                 font-size:.78rem;font-weight:700;z-index:1;}
+    .ag-step.done   .ag-step-dot{background:#22c55e;color:#fff;}
+    .ag-step.active .ag-step-dot{background:#5865f2;color:#fff;
+                                  box-shadow:0 0 0 4px rgba(88,101,242,.2);}
+    .ag-step.upcoming .ag-step-dot{background:#e2e8f0;color:#94a3b8;}
+    .ag-step-label{font-size:.7rem;margin-top:6px;font-weight:500;text-align:center;}
+    .ag-step.done    .ag-step-label{color:#22c55e;}
+    .ag-step.active  .ag-step-label{color:#5865f2;}
+    .ag-step.upcoming .ag-step-label{color:#94a3b8;}
+    .ag-step-line{flex:1;height:2px;background:#e2e8f0;margin-bottom:18px;}
+    .ag-step-line.done-line{background:#22c55e;}
+
+    /* 3. FORM */
+    .ag-form{align-self:stretch;background:#fff;border:1.5px solid #e2e8f0;
+             border-radius:14px;padding:20px 22px;animation:slideIn .25s ease;}
+    .ag-form-title{font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:16px;
+                   padding-bottom:10px;border-bottom:1px solid #f1f5f9;}
+    .ag-field{margin-bottom:14px;}
+    .ag-field label{display:block;font-size:.8rem;font-weight:600;
+                    color:#475569;margin-bottom:5px;}
+    .req{color:#ef4444;}
+    .ag-field input,.ag-field select{width:100%;padding:9px 12px;
+      border:1.5px solid #e2e8f0;border-radius:8px;font-size:.88rem;
+      color:#1e293b;outline:none;transition:border-color .2s;background:#fff;}
+    .ag-field input:focus,.ag-field select:focus{border-color:#5865f2;}
+    .ag-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;}
+    .ag-form-btn{width:100%;padding:11px;background:#5865f2;color:#fff;
+                 border:none;border-radius:8px;font-size:.9rem;font-weight:600;
+                 cursor:pointer;margin-top:6px;transition:background .2s;}
+    .ag-form-btn:hover{background:#4752c4;}
+    .ag-form-btn:disabled{background:#adb5bd;cursor:not-allowed;}
+
+    /* 4. SUMMARY */
+    .ag-summary{align-self:stretch;background:#f8fafc;border:1.5px solid #e2e8f0;
+                border-radius:14px;overflow:hidden;animation:slideIn .25s ease;}
+    .ag-summary-header{background:#1a1a2e;color:#fff;padding:10px 18px;
+                       font-size:.88rem;font-weight:600;}
+    .ag-sum-table{width:100%;border-collapse:collapse;}
+    .ag-sum-table td{padding:9px 18px;font-size:.85rem;border-bottom:1px solid #f1f5f9;}
+    .ag-sum-table tr:last-child td{border-bottom:none;}
+    .ag-sum-table td:first-child{color:#64748b;font-weight:500;width:40%;}
+    .ag-sum-table td:last-child{color:#1e293b;font-weight:600;}
+    .ag-sum-table tr:nth-child(even) td{background:#f0f4f8;}
+
+    /* 5. DECISION */
+    .ag-decision{align-self:stretch;border-radius:14px;padding:24px;
+                 text-align:center;animation:slideIn .3s ease;}
+    .ag-decision.approved{background:#f0fdf4;border:2px solid #22c55e;}
+    .ag-decision.rejected{background:#fff1f2;border:2px solid #ef4444;}
+    .ag-decision.pending {background:#fefce8;border:2px solid #eab308;}
+    .ag-decision.review  {background:#eff6ff;border:2px solid #3b82f6;}
+    .ag-dec-icon{font-size:2.8rem;margin-bottom:8px;}
+    .ag-dec-title{font-size:1.2rem;font-weight:700;margin-bottom:6px;}
+    .ag-decision.approved .ag-dec-title{color:#15803d;}
+    .ag-decision.rejected .ag-dec-title{color:#b91c1c;}
+    .ag-decision.pending  .ag-dec-title{color:#b45309;}
+    .ag-decision.review   .ag-dec-title{color:#1d4ed8;}
+    .ag-dec-msg{font-size:.87rem;color:#475569;margin-bottom:14px;}
+    .ag-dec-details{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;
+                    background:rgba(0,0,0,.04);border-radius:8px;padding:10px 16px;}
+    .ag-dec-detail{text-align:center;}
+    .ag-dec-detail span{display:block;font-size:.72rem;color:#64748b;margin-bottom:2px;}
+    .ag-dec-detail strong{font-size:.92rem;color:#1e293b;}
+
+    /* 6. CONFIRMATION */
+    .ag-confirmation{align-self:stretch;background:linear-gradient(135deg,#f0fdf4,#dcfce7);
+                     border:2px solid #22c55e;border-radius:14px;padding:24px;
+                     text-align:center;animation:slideIn .3s ease;}
+    .ag-conf-icon{font-size:3rem;margin-bottom:8px;}
+    .ag-conf-title{font-size:1.2rem;font-weight:700;color:#15803d;margin-bottom:10px;}
+    .ag-conf-ref{display:inline-block;background:#fff;border:1.5px solid #22c55e;
+                 border-radius:8px;padding:6px 16px;font-size:.88rem;
+                 color:#15803d;margin-bottom:14px;}
+    .ag-conf-ref strong{font-family:monospace;font-size:1rem;}
+    .ag-conf-steps{list-style:none;text-align:left;max-width:360px;margin:0 auto;}
+    .ag-conf-steps li{padding:5px 0;font-size:.84rem;color:#374151;padding-left:20px;position:relative;}
+    .ag-conf-steps li::before{content:"→";position:absolute;left:0;color:#22c55e;font-weight:700;}
+
+    /* General components */
+    .ag-card{align-self:flex-start;width:min(100%,500px);border-radius:12px;
+             border-left:4px solid;padding:14px 16px;animation:slideIn .25s ease;}
+    .ag-card.blue  {background:#eff6ff;border-color:#3b82f6;}
+    .ag-card.green {background:#f0fdf4;border-color:#22c55e;}
+    .ag-card.yellow{background:#fefce8;border-color:#eab308;}
+    .ag-card.purple{background:#faf5ff;border-color:#a855f7;}
+    .ag-card.red   {background:#fff1f2;border-color:#ef4444;}
+    .ag-card-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+    .ag-card-emoji {font-size:1.4rem;}
+    .ag-card-title {font-weight:700;font-size:.93rem;color:#1a1a2e;}
+    .ag-card-body  {font-size:.84rem;color:#374151;line-height:1.6;white-space:pre-wrap;}
+
+    .ag-table-wrap{align-self:flex-start;width:min(100%,600px);border-radius:12px;
+                   overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.1);animation:slideIn .25s ease;}
+    .ag-table-title{background:#1a1a2e;color:#fff;padding:8px 14px;font-size:.84rem;font-weight:600;}
+    .ag-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+    .ag-table th{background:#f8fafc;padding:8px 12px;text-align:left;color:#475569;
+                 font-weight:600;border-bottom:1px solid #e2e8f0;}
+    .ag-table td{padding:8px 12px;color:#1e293b;border-bottom:1px solid #f1f5f9;}
+    .ag-table tr:last-child td{border-bottom:none;}
+    .ag-table tr:nth-child(even) td{background:#f8fafc;}
+
+    .ag-options{align-self:flex-start;width:min(100%,500px);background:#fff;
+                border:1.5px solid #e2e8f0;border-radius:12px;padding:14px 16px;
+                animation:slideIn .25s ease;}
+    .ag-options-q{font-size:.88rem;font-weight:600;color:#1a1a2e;margin-bottom:10px;}
+    .ag-options-btns{display:flex;flex-wrap:wrap;gap:8px;}
+    .ag-opt-btn{padding:7px 16px;background:#f1f5f9;color:#1a1a2e;border:1.5px solid #cbd5e1;
+                border-radius:20px;font-size:.83rem;cursor:pointer;transition:all .15s;}
+    .ag-opt-btn:hover{background:#5865f2;color:#fff;border-color:#5865f2;}
+    .ag-opt-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+    /* Input bar */
+    #input-bar{display:flex;gap:10px;padding:12px 18px;
+               border-top:1px solid #e9ecef;background:#fff;}
+    #msg-input{flex:1;padding:10px 14px;border:1.5px solid #dee2e6;border-radius:8px;
+               font-size:.9rem;outline:none;transition:border-color .2s;}
+    #msg-input:focus{border-color:#5865f2;}
+    #send-btn{padding:10px 22px;background:#5865f2;color:#fff;border:none;
+              border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;
+              transition:background .2s;}
+    #send-btn:hover{background:#4752c4;}
+    #send-btn:disabled{background:#adb5bd;cursor:not-allowed;}
+    .hint{margin:auto;text-align:center;color:#adb5bd;font-size:.85rem;line-height:2.2;}
+    .hint strong{color:#5865f2;}
+  </style>
+</head>
+<body>
+
+<h1>AG-UI — Journey Demo</h1>
+<p class="sub">Same 6 components · Agent assembles any journey at runtime</p>
+
+<div id="log-wrap">
+  <h3>LIVE AG-UI EVENTS</h3>
+  <div id="log"></div>
+</div>
+
+<div id="chat">
+  <div id="msgs">
+    <div class="hint">
+      Each journey is driven by a <strong>JSON config file</strong> — not hardcoded.<br>
+      The agent reads the config at runtime and renders the exact screens.<br><br>
+      <strong>"I want to apply for a loan"</strong> &nbsp;→&nbsp; reads <code>journeys/loan.json</code><br>
+      <strong>"Open a bank account"</strong> &nbsp;→&nbsp; reads <code>journeys/account.json</code><br>
+      <strong>"File an insurance claim"</strong> &nbsp;→&nbsp; reads <code>journeys/insurance.json</code><br><br>
+      Or: <strong>"What journeys are available?"</strong>
+    </div>
+  </div>
+  <div id="input-bar">
+    <input id="msg-input" type="text" placeholder="Type a journey or ask anything…"/>
+    <button id="send-btn" onclick="send()">Send</button>
+  </div>
+</div>
+
+<script>
+  const THREAD_ID = crypto.randomUUID();
+  const msgsEl    = document.getElementById("msgs");
+
+  // ── Log ───────────────────────────────────────────────────────────────────
+  function log(text, cls) {
+    const d = document.createElement("div");
+    d.className = `ll ${cls}`;
+    d.textContent = `→ ${text}`;
+    document.getElementById("log").appendChild(d);
+    document.getElementById("log-wrap").scrollTop = 9999;
+  }
+
+  // ── DOM helpers ───────────────────────────────────────────────────────────
+  function append(el) {
+    msgsEl.querySelector(".hint")?.remove();
+    msgsEl.appendChild(el);
+    msgsEl.scrollTop = 9999;
+    return el;
+  }
+  function bubble(role, text="") {
+    const el = document.createElement("div");
+    el.className = `bubble ${role}`;
+    el.textContent = text;
+    return append(el);
+  }
+  function esc(s) {
+    return String(s??"")
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  // ════════════════════════════════════════════
+  // COMPONENT RENDERERS
+  // ════════════════════════════════════════════
+
+  // 1. Welcome screen
+  function renderWelcome(d) {
+    const el = document.createElement("div");
+    el.className = `ag-welcome ${d.color||"blue"}`;
+    el.innerHTML = `
+      <div class="ag-welcome-icon">${d.icon||"🚀"}</div>
+      <div class="ag-welcome-title">${esc(d.title)}</div>
+      <div class="ag-welcome-desc">${esc(d.description)}</div>
+      <button class="ag-welcome-btn" onclick="ctaClick(this,'${esc(d.cta_label||"Get Started")}')">
+        ${esc(d.cta_label||"Get Started")}
+      </button>`;
+    return el;
+  }
+
+  // 2. Progress bar
+  function renderProgress(d) {
+    const el = document.createElement("div");
+    el.className = "ag-progress";
+    const steps = d.steps || [];
+    let html = '<div class="ag-steps">';
+    steps.forEach((name, i) => {
+      const n    = i + 1;
+      const cls  = n < d.current ? "done" : n === d.current ? "active" : "upcoming";
+      const dot  = n < d.current ? "✓" : String(n);
+      if (i > 0) {
+        const lCls = n <= d.current ? "done-line" : "";
+        html += `<div class="ag-step-line ${lCls}"></div>`;
+      }
+      html += `<div class="ag-step ${cls}">
+                 <div class="ag-step-dot">${dot}</div>
+                 <div class="ag-step-label">${esc(name)}</div>
+               </div>`;
+    });
+    html += '</div>';
+    el.innerHTML = html;
+    return el;
+  }
+
+  // 3. Form
+  function renderForm(d) {
+    const fields = (d.fields||[]).map(f => {
+      let input;
+      if (f.type === "select") {
+        const opts = (f.options||[]).map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join("");
+        input = `<select name="${esc(f.name)}" ${f.required?"required":""}><option value="">Select…</option>${opts}</select>`;
+      } else {
+        input = `<input type="${f.type||"text"}" name="${esc(f.name)}"
+                   placeholder="${esc(f.placeholder||"")}"
+                   ${f.required?"required":""} />`;
+      }
+      return `<div class="ag-field">
+                <label>${esc(f.label)}${f.required?'<span class="req"> *</span>':""}</label>
+                ${input}
+              </div>`;
+    }).join("");
+
+    const el = document.createElement("div");
+    el.className = "ag-form";
+    el.innerHTML = `
+      <div class="ag-form-title">${esc(d.title)}</div>
+      <form class="ag-form-grid" onsubmit="submitForm(event,this)">
+        ${fields}
+        <div style="grid-column:1/-1">
+          <button type="submit" class="ag-form-btn">${esc(d.submit_label||"Next →")}</button>
+        </div>
+      </form>`;
+    return el;
+  }
+
+  // 4. Summary
+  function renderSummary(d) {
+    const rows = (d.items||[]).map(it=>
+      `<tr><td>${esc(it.label)}</td><td>${esc(it.value)}</td></tr>`
+    ).join("");
+    const el = document.createElement("div");
+    el.className = "ag-summary";
+    el.innerHTML = `
+      <div class="ag-summary-header">📋 ${esc(d.title||"Review Your Details")}</div>
+      <table class="ag-sum-table"><tbody>${rows}</tbody></table>`;
+    return el;
+  }
+
+  // 5. Decision
+  function renderDecision(d) {
+    const icons = {approved:"✅",rejected:"❌",pending:"⏳",review:"🔍"};
+    const details = (d.details||[]).map(dt=>
+      `<div class="ag-dec-detail">
+         <span>${esc(dt.label)}</span>
+         <strong>${esc(dt.value)}</strong>
+       </div>`
+    ).join("");
+    const el = document.createElement("div");
+    el.className = `ag-decision ${d.status||"review"}`;
+    el.innerHTML = `
+      <div class="ag-dec-icon">${icons[d.status]||"📋"}</div>
+      <div class="ag-dec-title">${esc(d.title)}</div>
+      <div class="ag-dec-msg">${esc(d.message)}</div>
+      ${details?`<div class="ag-dec-details">${details}</div>`:""}`;
+    return el;
+  }
+
+  // 6. Confirmation
+  function renderConfirmation(d) {
+    const steps = (d.next_steps||[]).map(s=>`<li>${esc(s)}</li>`).join("");
+    const el = document.createElement("div");
+    el.className = "ag-confirmation";
+    el.innerHTML = `
+      <div class="ag-conf-icon">🎉</div>
+      <div class="ag-conf-title">${esc(d.title||"You're all set!")}</div>
+      <div class="ag-conf-ref">Reference: <strong>${esc(d.reference_number)}</strong></div>
+      ${steps?`<ul class="ag-conf-steps">${steps}</ul>`:""}`;
+    return el;
+  }
+
+  // General components
+  function renderCard(d) {
+    const el = document.createElement("div");
+    el.className = `ag-card ${d.color||"blue"}`;
+    el.innerHTML = `
+      <div class="ag-card-header">
+        <span class="ag-card-emoji">${d.emoji||"💡"}</span>
+        <span class="ag-card-title">${esc(d.title)}</span>
+      </div>
+      <div class="ag-card-body">${esc(d.body)}</div>`;
+    return el;
+  }
+  function renderTable(d) {
+    const headers = (d.headers||[]).map(h=>`<th>${esc(h)}</th>`).join("");
+    const rows    = (d.rows||[]).map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("");
+    const el = document.createElement("div");
+    el.className = "ag-table-wrap";
+    el.innerHTML = `
+      <div class="ag-table-title">${esc(d.title||"")}</div>
+      <table class="ag-table"><thead><tr>${headers}</tr></thead><tbody>${rows}</tbody></table>`;
+    return el;
+  }
+  function renderOptions(d) {
+    const btns = (d.options||[]).map(o=>
+      `<button class="ag-opt-btn" onclick="optClick(this,'${esc(o)}')">${esc(o)}</button>`
+    ).join("");
+    const el = document.createElement("div");
+    el.className = "ag-options";
+    el.innerHTML = `<div class="ag-options-q">${esc(d.question||"Choose:")}</div>
+                    <div class="ag-options-btns">${btns}</div>`;
+    return el;
+  }
+
+  // ── Component dispatcher ──────────────────────────────────────────────────
+  const RENDERERS = {
+    welcome:      renderWelcome,
+    progress:     renderProgress,
+    form:         renderForm,
+    summary:      renderSummary,
+    decision:     renderDecision,
+    confirmation: renderConfirmation,
+    card:         renderCard,
+    table:        renderTable,
+    options:      renderOptions,
+  };
+
+  function renderComponent(ev) {
+    const fn = RENDERERS[ev.component];
+    if (fn) append(fn(ev.data));
+  }
+
+  // ── User interactions ─────────────────────────────────────────────────────
+  function ctaClick(btn, label) {
+    btn.disabled = true;
+    document.getElementById("msg-input").value = label;
+    send();
+  }
+  function optClick(btn, value) {
+    btn.closest(".ag-options").querySelectorAll(".ag-opt-btn")
+       .forEach(b => b.disabled = true);
+    btn.style.background = "#5865f2";
+    btn.style.color      = "#fff";
+    document.getElementById("msg-input").value = value;
+    send();
+  }
+  function submitForm(e, form) {
+    e.preventDefault();
+    const data  = new FormData(form);
+    const parts = [...data.entries()].map(([k,v]) => `${k}: ${v}`);
+    form.querySelectorAll("input,select,button").forEach(el => el.disabled = true);
+    document.getElementById("msg-input").value = `[Form Response] ${parts.join(" | ")}`;
+    send();
+  }
+
+  // ── AG-UI event handler ───────────────────────────────────────────────────
+  function handleEvent(ev, assistantEl, state) {
+    switch(ev.type) {
+      case "RUN_STARTED":
+        log(`RUN_STARTED  ${ev.runId.slice(0,8)}…`, "c-run"); break;
+
+      case "TEXT_MESSAGE_START":
+        log("TEXT_MESSAGE_START", "c-msg");
+        assistantEl.innerHTML =
+          '<span class="dots"><span></span><span></span><span></span></span>';
+        state.gotText = false;
+        break;
+
+      case "TEXT_MESSAGE_CONTENT":
+        if (!state.gotText) { assistantEl.textContent = ""; state.gotText = true; }
+        assistantEl.textContent += ev.delta;
+        msgsEl.scrollTop = 9999;
+        break;
+
+      case "TOOL_CALL_START":
+        log(`TOOL_CALL_START  ${ev.toolCallName}`, "c-tool"); break;
+
+      case "CUSTOM_COMPONENT":
+        log(`CUSTOM_COMPONENT  → ${ev.component}`, "c-comp");
+        renderComponent(ev);
+        break;
+
+      case "TOOL_CALL_END":
+        log(`TOOL_CALL_END`, "c-tool"); break;
+
+      case "TEXT_MESSAGE_END":
+        if (!state.gotText) assistantEl.remove();
+        log("TEXT_MESSAGE_END", "c-end");
+        break;
+
+      case "RUN_FINISHED":
+        log(`RUN_FINISHED  ${ev.runId.slice(0,8)}…`, "c-run");
+        document.getElementById("send-btn").disabled = false;
+        document.getElementById("msg-input").focus();
+        break;
+
+      case "RUN_ERROR":
+        assistantEl.textContent = `Error: ${ev.message}`;
+        assistantEl.style.color = "red";
+        document.getElementById("send-btn").disabled = false;
+        break;
+    }
+  }
+
+  // ── Send ──────────────────────────────────────────────────────────────────
+  async function send() {
+    const input   = document.getElementById("msg-input");
+    const btn     = document.getElementById("send-btn");
+    const message = input.value.trim();
+    if (!message) return;
+
+    // Hide form responses — they're internal data, not pretty to show
+    if (!message.startsWith("[Form Response]")) bubble("user", message);
+
+    input.value  = "";
+    btn.disabled = true;
+
+    const assistantEl = bubble("assistant");
+    const state = { gotText: false };
+
+    try {
+      const resp    = await fetch("/run", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ message, thread_id: THREAD_ID }),
+      });
+      const reader  = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let   buf     = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const parts = buf.split("\n\n");
+        buf = parts.pop();
+        for (const part of parts) {
+          const line = part.trim();
+          if (line.startsWith("data: ")) {
+            try { handleEvent(JSON.parse(line.slice(6)), assistantEl, state); }
+            catch(_) {}
+          }
+        }
+      }
+    } catch(err) {
+      assistantEl.textContent = `Network error: ${err.message}`;
+      assistantEl.style.color = "red";
+      btn.disabled = false;
+    }
+  }
+
+  document.getElementById("msg-input")
+    .addEventListener("keydown", e => { if(e.key==="Enter") send(); });
+</script>
+</body>
+</html>

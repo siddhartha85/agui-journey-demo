@@ -1,0 +1,50 @@
+{
+  "id": "insurance",
+  "name": "File an Insurance Claim",
+  "icon": "🛡️",
+  "color": "purple",
+  "description": "Submit your insurance claim quickly and securely. Most claims are processed within 48 hours.",
+  "cta_label": "Start My Claim",
+
+  "steps": [
+    {
+      "id": "incident",
+      "title": "Incident Details",
+      "submit_label": "Next: Supporting Information →",
+      "fields": [
+        { "name": "claim_type",      "label": "Type of Claim",       "type": "select",
+          "options": ["Home Damage", "Vehicle Accident", "Medical", "Travel Disruption", "Theft", "Other"], "required": true },
+        { "name": "incident_date",   "label": "Date of Incident",    "type": "date",                        "required": true },
+        { "name": "incident_location","label": "Location",           "type": "text",  "placeholder": "Where did it happen?", "required": true },
+        { "name": "description",     "label": "Brief Description",   "type": "text",  "placeholder": "Describe what happened", "required": true }
+      ]
+    },
+    {
+      "id": "supporting",
+      "title": "Supporting Information",
+      "submit_label": "Next: Review Claim →",
+      "fields": [
+        { "name": "estimated_value", "label": "Estimated Loss / Damage ($)", "type": "number", "placeholder": "e.g. 2500",  "required": true  },
+        { "name": "police_report",   "label": "Police Report Filed?",        "type": "select",
+          "options": ["Yes – I have a report number", "No – not required", "No – but I plan to file one"],                  "required": true  },
+        { "name": "witnesses",       "label": "Were there witnesses?",       "type": "select",
+          "options": ["Yes", "No", "Unsure"],                                                                               "required": true  },
+        { "name": "policy_number",   "label": "Policy Number",               "type": "text",   "placeholder": "e.g. POL-2024-XXXXXX", "required": true }
+      ]
+    }
+  ],
+
+  "summary_title": "Review Your Claim",
+
+  "decision_rule": "Mark as 'pending' (under review) — insurance claims always require manual review. Provide realistic review timeline of 48 hours.",
+
+  "confirmation": {
+    "title": "Claim Successfully Submitted!",
+    "next_steps": [
+      "A claim handler will be assigned to you within 2 hours",
+      "You will receive a call or email within 48 hours",
+      "Keep all receipts and evidence until the claim is resolved",
+      "Track your claim status using the reference number above"
+    ]
+  }
+}
