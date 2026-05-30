@@ -1,5 +1,6 @@
 {
   "id": "insurance",
+  "layout": "document",
   "name": "File an Insurance Claim",
   "icon": "🛡️",
   "color": "purple",

@@ -16,9 +16,10 @@ export interface ChatMessage {
 }
 
 export function useAgentStream() {
-  const [messages,    setMessages]    = useState<ChatMessage[]>([])
-  const [isStreaming, setIsStreaming] = useState(false)
-  const [debugLog,    setDebugLog]    = useState<string[]>([])
+  const [messages,     setMessages]     = useState<ChatMessage[]>([])
+  const [isStreaming,  setIsStreaming]  = useState(false)
+  const [debugLog,     setDebugLog]     = useState<string[]>([])
+  const [activeLayout, setActiveLayout] = useState('')
   const streamingRef = useRef(false)
   const threadId     = useRef(crypto.randomUUID())
 
@@ -93,7 +94,17 @@ export function useAgentStream() {
               ))
             }
             if (event.type === 'CUSTOM_COMPONENT') {
-              dbg(`→ rendering component: ${event.component}`)
+              // Detect layout: use backend-injected value, or sniff from welcome content
+              let detectedLayout: string = event.layout || ''
+              if (!detectedLayout && event.component === 'welcome') {
+                const text = JSON.stringify(event.data).toLowerCase()
+                if (text.includes('credit card'))                          detectedLayout = 'card_preview'
+                else if (text.includes('loan'))                            detectedLayout = 'financial'
+                else if (text.includes('bank account') || text.includes('savings account')) detectedLayout = 'onboarding'
+                else if (text.includes('insurance') || text.includes('claim')) detectedLayout = 'document'
+              }
+              if (detectedLayout) setActiveLayout(detectedLayout)
+              dbg(`→ component: ${event.component} layout: ${detectedLayout || 'default'}`)
               setMessages(prev => prev.map(m =>
                 m.id === assistantId ? { ...m, components: [...m.components, event] } : m
               ))
@@ -118,8 +129,9 @@ export function useAgentStream() {
   function reset() {
     if (streamingRef.current) return
     setMessages([])
+    setActiveLayout('')
     threadId.current = crypto.randomUUID()
   }
 
-  return { messages, isStreaming, send, reset, debugLog }
+  return { messages, isStreaming, send, reset, debugLog, activeLayout }
 }

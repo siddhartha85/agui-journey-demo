@@ -39,6 +39,7 @@ async def ping():
     """Simple connectivity test — React app calls this on load."""
     return {"status": "ok", "journeys": list(JOURNEY_CONFIGS.keys())}
 threads: dict[str, list] = {}
+thread_layout: dict[str, str] = {}   # thread_id → active layout name
 
 # ── Load all journey configs from disk at startup ─────────────────────────────
 JOURNEYS_DIR = os.path.join(os.path.dirname(__file__), "journeys")
@@ -310,12 +311,14 @@ DISPLAY_TOOLS = {
     "show_decision", "show_confirmation", "show_card", "show_table", "show_options"
 }
 
-def run_tool(name: str, args: dict) -> dict:
+def run_tool(name: str, args: dict, thread_id: str = "") -> dict:
     # Config tools — return data to the agent, no component rendered
     if name == "get_journey_config":
         jid = args.get("journey_id", "")
         if jid in JOURNEY_CONFIGS:
             cfg = JOURNEY_CONFIGS[jid]
+            if thread_id:
+                thread_layout[thread_id] = cfg.get("layout", "")
             return {"ai_result": json.dumps(cfg, indent=2)}
         return {"ai_result": f"Journey '{jid}' not found. Available: {list(JOURNEY_CONFIGS.keys())}"}
 
@@ -325,9 +328,25 @@ def run_tool(name: str, args: dict) -> dict:
 
     # Display tools — emit as CUSTOM_COMPONENT
     if name in DISPLAY_TOOLS:
+        layout = thread_layout.get(thread_id, "") if thread_id else ""
+
+        # Fallback: detect layout from keywords in the tool call args
+        if not layout and thread_id:
+            args_text = json.dumps(args).lower()
+            if "credit card" in args_text or ("credit" in args_text and "card" in args_text):
+                layout = "card_preview"
+            elif "loan" in args_text and "credit" not in args_text:
+                layout = "financial"
+            elif "bank account" in args_text or ("account" in args_text and "bank" in args_text):
+                layout = "onboarding"
+            elif "insurance" in args_text or "claim" in args_text or "incident" in args_text:
+                layout = "document"
+            if layout:
+                thread_layout[thread_id] = layout
+
         return {
             "ai_result": f"{name} rendered.",
-            "component": {"type": name.replace("show_", ""), "data": args}
+            "component": {"type": name.replace("show_", ""), "data": args, "layout": layout}
         }
 
     return {"ai_result": f"Unknown tool: {name}"}
@@ -390,7 +409,7 @@ def stream_agui_events(message: str, thread_id: str):
             for i, tc in sorted(tool_calls.items()):
                 tc_id  = str(uuid.uuid4())
                 args   = json.loads(tc["args"] or "{}")
-                result = run_tool(tc["name"], args)
+                result = run_tool(tc["name"], args, thread_id)
                 tool_results_map[i] = (tc, result)
 
                 yield agui_event({"type": "TOOL_CALL_START", "toolCallId": tc_id, "toolCallName": tc["name"]})
@@ -400,6 +419,7 @@ def stream_agui_events(message: str, thread_id: str):
                         "type":      "CUSTOM_COMPONENT",
                         "component": result["component"]["type"],
                         "data":      result["component"]["data"],
+                        "layout":    result["component"].get("layout", ""),
                     })
 
                 yield agui_event({"type": "TOOL_CALL_END", "toolCallId": tc_id, "result": result["ai_result"][:120]})

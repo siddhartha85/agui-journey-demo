@@ -1,5 +1,6 @@
 {
   "id": "account",
+  "layout": "onboarding",
   "name": "Open a Bank Account",
   "icon": "💳",
   "color": "green",

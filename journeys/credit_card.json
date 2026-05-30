@@ -1,5 +1,6 @@
 {
   "id": "credit_card",
+  "layout": "card_preview",
   "name": "Credit Card Application",
   "icon": "💳",
   "color": "purple",
