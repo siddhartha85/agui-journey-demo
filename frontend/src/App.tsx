@@ -12,7 +12,7 @@ import { ComponentRenderer } from './agui/ComponentRenderer'
 import './App.css'
 
 export default function App() {
-  const { messages, isStreaming, send, reset, debugLog } = useAgentStream()
+  const { messages, isStreaming, send, reset, debugLog, activeLayout } = useAgentStream()
   const [input, setInput]       = useState('')
   const [connStatus, setConnStatus] = useState<'checking'|'ok'|'error'>('checking')
   const bottomRef               = useRef<HTMLDivElement>(null)
@@ -52,7 +52,7 @@ export default function App() {
       )}
       {connStatus === 'ok' && (
         <div style={{background:'#f0fdf4',color:'#15803d',padding:'6px 12px',borderRadius:8,marginTop:8,fontSize:'.8rem'}}>
-          ✅ Backend connected · {isStreaming ? '⏳ Streaming…' : 'Ready'}
+          ✅ Backend connected · {isStreaming ? '⏳ Streaming…' : 'Ready'} {activeLayout && `· Layout: ${activeLayout}`}
         </div>
       )}
 
@@ -112,6 +112,7 @@ export default function App() {
               <ComponentRenderer
                 key={i}
                 event={event}
+                layout={activeLayout}
                 onUserAction={handleUserAction}
               />
             ))}

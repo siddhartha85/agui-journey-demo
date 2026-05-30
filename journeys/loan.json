@@ -1,5 +1,6 @@
 {
   "id": "loan",
+  "layout": "financial",
   "name": "Personal Loan Application",
   "icon": "🏦",
   "color": "blue",

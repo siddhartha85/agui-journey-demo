@@ -38,6 +38,7 @@ export interface CustomComponentEvent extends AGUIEvent {
   type: 'CUSTOM_COMPONENT'
   component: string        // e.g. "welcome", "form", "decision"
   data: Record<string, unknown>
+  layout?: string          // e.g. "card_preview", "financial", "onboarding", "document"
 }
 
 // ── Component data shapes ──────────────────────────────────────────────────

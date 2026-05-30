@@ -1,0 +1,139 @@
+/* ── Onboarding Layout — Friendly Green Theme ── */
+
+.ob-welcome {
+  background: linear-gradient(160deg, #f0fdf4 0%, #dcfce7 100%);
+  border-radius: 20px;
+  border: 1.5px solid #bbf7d0;
+  padding: 48px 32px;
+  text-align: center;
+  width: 100%;
+}
+.ob-welcome-blob {
+  width: 90px; height: 90px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 8px 24px rgba(34,197,94,0.35);
+}
+.ob-welcome-emoji  { font-size: 2.5rem; }
+.ob-welcome-title  { font-size: 1.6rem; font-weight: 700; color: #14532d; margin-bottom: 10px; }
+.ob-welcome-desc   { font-size: .9rem; color: #475569; max-width: 400px; margin: 0 auto 22px; line-height: 1.65; }
+.ob-perks          { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 26px; }
+.ob-perk           { font-size: .82rem; color: #16a34a; font-weight: 600; }
+.ob-cta-btn {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff; border: none;
+  padding: 14px 40px; border-radius: 50px;
+  font-size: 1rem; font-weight: 600; cursor: pointer;
+  box-shadow: 0 8px 24px rgba(34,197,94,0.35);
+  transition: transform .15s;
+}
+.ob-cta-btn:hover { transform: translateY(-2px); }
+
+/* ── Progress ── */
+.ob-progress {
+  display: flex; gap: 0;
+  background: #fff;
+  border: 1.5px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 14px 24px;
+  width: 100%;
+  justify-content: center;
+}
+.ob-step       { display: flex; align-items: center; gap: 8px; padding: 0 16px; font-size: .82rem; color: #94a3b8; }
+.ob-step.done  { color: #16a34a; }
+.ob-step.active { color: #15803d; font-weight: 700; }
+.ob-step-icon  { font-size: 1rem; }
+
+/* ── Split Form ── */
+.ob-form-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 0;
+  background: #fff;
+  border-radius: 20px;
+  border: 1.5px solid #e2e8f0;
+  overflow: hidden;
+  width: 100%;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+@media (max-width: 640px) { .ob-form-layout { grid-template-columns: 1fr; } }
+
+.ob-sidebar {
+  background: linear-gradient(160deg, #f0fdf4, #dcfce7);
+  padding: 28px 20px;
+  border-right: 1.5px solid #bbf7d0;
+}
+.ob-sidebar-title { font-size: .72rem; font-weight: 700; color: #16a34a; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+.ob-sidebar-items { display: flex; flex-direction: column; gap: 12px; }
+.ob-sidebar-item  { display: flex; align-items: center; gap: 8px; font-size: .8rem; color: #94a3b8; transition: color .2s; }
+.ob-sidebar-item.filled { color: #16a34a; }
+.ob-sidebar-check { font-size: 1rem; }
+
+.ob-form-right  { padding: 28px 24px; }
+.ob-form-title  { font-size: 1.1rem; font-weight: 700; color: #14532d; margin-bottom: 18px; }
+.ob-fields      { display: flex; flex-direction: column; gap: 14px; }
+.ob-field label { display: block; font-size: .78rem; font-weight: 600; color: #475569; margin-bottom: 5px; }
+.ob-req         { color: #16a34a; }
+.ob-field input, .ob-field select {
+  width: 100%;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: .88rem;
+  color: #1e293b;
+  outline: none;
+  transition: border-color .2s;
+}
+.ob-field input:focus, .ob-field select:focus { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.1); }
+.ob-submit-btn {
+  margin-top: 20px; width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff; border: none; border-radius: 10px;
+  font-size: .95rem; font-weight: 600; cursor: pointer; transition: opacity .2s;
+}
+.ob-submit-btn:hover    { opacity: .92; }
+.ob-submit-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── Summary ── */
+.ob-summary       { background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 16px; padding: 24px; width: 100%; }
+.ob-summary-title { font-size: 1.1rem; font-weight: 700; color: #14532d; margin-bottom: 14px; }
+.ob-summary-list  { display: flex; flex-direction: column; gap: 0; }
+.ob-summary-row   { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #dcfce7; }
+.ob-summary-lbl   { font-size: .82rem; color: #64748b; }
+.ob-summary-val   { font-size: .85rem; font-weight: 600; color: #14532d; }
+
+/* ── Decision ── */
+.ob-decision      { background: #f0fdf4; border-radius: 16px; padding: 32px; text-align: center; border: 1.5px solid #bbf7d0; width: 100%; }
+.ob-decision-icon { font-size: 2.5rem; margin-bottom: 10px; }
+.ob-decision h2   { font-size: 1.25rem; font-weight: 700; margin-bottom: 10px; }
+.ob-decision p    { color: #475569; }
+
+/* ── Confirmation ── */
+.ob-confirmation { background: linear-gradient(160deg, #f0fdf4, #dcfce7); border-radius: 20px; border: 1.5px solid #bbf7d0; padding: 40px 32px; text-align: center; width: 100%; }
+.ob-conf-icon    { font-size: 3rem; margin-bottom: 10px; }
+.ob-confirmation h2 { font-size: 1.3rem; font-weight: 700; color: #14532d; margin-bottom: 10px; }
+.ob-conf-ref     { font-size: .85rem; color: #475569; margin-bottom: 20px; }
+.ob-conf-ref strong { color: #16a34a; }
+.ob-checklist    { display: flex; flex-direction: column; gap: 10px; max-width: 380px; margin: 0 auto; text-align: left; }
+.ob-check-item   { display: flex; gap: 10px; font-size: .85rem; color: #475569; align-items: flex-start; }
+.ob-check        { color: #16a34a; font-weight: 700; flex-shrink: 0; }
+
+/* ── Options ── */
+.ob-options    { width: 100%; }
+.ob-options-q  { font-size: .88rem; color: #475569; margin-bottom: 10px; }
+.ob-options-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.ob-option-btn {
+  padding: 10px 20px;
+  background: #fff;
+  border: 1.5px solid #bbf7d0;
+  border-radius: 8px;
+  color: #16a34a;
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+.ob-option-btn:hover { background: #dcfce7; border-color: #22c55e; }
