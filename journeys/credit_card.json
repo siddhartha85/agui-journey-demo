@@ -1,0 +1,63 @@
+{
+  "id": "credit_card",
+  "name": "Credit Card Application",
+  "icon": "💳",
+  "color": "purple",
+  "description": "Apply for a credit card in minutes. Choose from cashback, travel rewards, or low interest — and get an instant decision.",
+  "cta_label": "Apply Now",
+
+  "steps": [
+    {
+      "id": "personal",
+      "title": "Personal Information",
+      "submit_label": "Next: Financial Details →",
+      "fields": [
+        { "name": "full_name",   "label": "Full Name",        "type": "text",   "placeholder": "e.g. Jane Smith",         "required": true },
+        { "name": "dob",         "label": "Date of Birth",    "type": "date",                                              "required": true },
+        { "name": "email",       "label": "Email Address",    "type": "email",  "placeholder": "you@example.com",         "required": true },
+        { "name": "phone",       "label": "Phone Number",     "type": "tel",    "placeholder": "+1 555 000 0000",         "required": true },
+        { "name": "address",     "label": "Home Address",     "type": "text",   "placeholder": "e.g. 123 Main St, NY",   "required": true }
+      ]
+    },
+    {
+      "id": "financial",
+      "title": "Financial Details",
+      "submit_label": "Next: Card Preferences →",
+      "fields": [
+        { "name": "annual_income",     "label": "Annual Income ($)",      "type": "number", "placeholder": "e.g. 60000",  "required": true },
+        { "name": "employment_status", "label": "Employment Status",      "type": "select",
+          "options": ["Full-time Employed", "Part-time Employed", "Self-Employed", "Unemployed", "Retired", "Student"],    "required": true },
+        { "name": "housing_status",    "label": "Housing Status",         "type": "select",
+          "options": ["Own — Mortgage", "Own — Outright", "Renting", "Living with Family"],                                "required": true },
+        { "name": "existing_debt",     "label": "Existing Monthly Debt ($)", "type": "number", "placeholder": "e.g. 500","required": true }
+      ]
+    },
+    {
+      "id": "card_preference",
+      "title": "Card Preferences",
+      "submit_label": "Next: Review Application →",
+      "fields": [
+        { "name": "card_type",     "label": "Card Type",           "type": "select",
+          "options": ["Cashback Card", "Travel Rewards Card", "Low Interest Card", "Student Card"],  "required": true },
+        { "name": "credit_limit",  "label": "Requested Credit Limit ($)", "type": "select",
+          "options": ["$500", "$1,000", "$2,500", "$5,000", "$10,000"],                              "required": true },
+        { "name": "card_use",      "label": "Primary Use",         "type": "select",
+          "options": ["Everyday Spending", "Travel", "Online Shopping", "Business Expenses", "Building Credit"], "required": true }
+      ]
+    }
+  ],
+
+  "summary_title": "Review Your Credit Card Application",
+
+  "decision_rule": "Approve if annual_income >= 20000 AND employment_status is Employed or Self-Employed AND existing_debt is less than 40% of monthly income. Approve with lower limit if income is moderate. Mark as pending if self-employed with borderline income. Reject if unemployed with high debt.",
+
+  "confirmation": {
+    "title": "Credit Card Application Submitted!",
+    "next_steps": [
+      "A confirmation email has been sent to your inbox",
+      "Your application will be reviewed within 1–2 business days",
+      "If approved, your card will arrive by post within 5–7 business days",
+      "Activate your card via the app or by calling the number on the back"
+    ]
+  }
+}
